@@ -159,8 +159,8 @@ After successful MVP implementation, the system can be expanded to include:
 
 ## 👥 Team
 
-- João: Technical Lead (Backend, API, Database)
-- Diogo: Frontend Developer and Client Liaison
+- João
+- Diogo
 
 ## 🛠️ Technology Stack
 
