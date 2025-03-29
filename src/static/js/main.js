@@ -131,10 +131,7 @@ document.addEventListener('DOMContentLoaded', function () {
             })
             .catch(error => {
                 console.error('Erro ao carregar tipos de impressão:', error);
-
-                // Dados de exemplo para desenvolvimento
-                const sampleTypes = ['4/0', '4/4', '2/2', '2/0', '1/1', '1/0', '5/5', '5/0'];
-                populatePrintTypeOptions(sampleTypes);
+                showToast('Não foi possível carregar os tipos de impressão. Por favor, tente novamente mais tarde.');
             });
     }
 
@@ -198,35 +195,13 @@ document.addEventListener('DOMContentLoaded', function () {
                     addToHistory(data);
                 }
 
-                // Exibir sugestões de otimização
+                // Exibir sugestão de otimização
                 showOptimizationSuggestion(data);
             })
             .catch(error => {
-                // Ocultar spinner
-                submitSpinner.style.display = 'none';
-
                 console.error('Erro ao calcular desperdício:', error);
-
-                // Para desenvolvimento, exibir resultado simulado
-                const mockData = generateMockData(printType, printRun);
-
-                // Salvar cálculo atual
-                currentCalculation = {
-                    print_type: mockData.print_type,
-                    print_run: mockData.print_run,
-                    waste_amount: mockData.waste_amount,
-                    adjustment: mockData.adjustment || 'N/A',
-                    is_special_case: mockData.is_special_case
-                };
-
-                displayResults(mockData);
-
-                // Adicionar ao histórico (apenas se não for uma visualização de item existente)
-                if (!isCalculationInHistory(mockData)) {
-                    addToHistory(mockData);
-                }
-
-                showOptimizationSuggestion(mockData);
+                submitSpinner.style.display = 'none';
+                showToast('Erro ao calcular desperdício. Por favor, tente novamente.');
             });
     }
 
@@ -235,99 +210,82 @@ document.addEventListener('DOMContentLoaded', function () {
      */
     function isCalculationInHistory(data) {
         const history = getHistoryFromStorage();
-        return history.some(item =>
-            item.print_type === data.print_type &&
+        return history.some(item => 
+            item.print_type === data.print_type && 
             item.print_run === data.print_run
         );
     }
 
     /**
-     * Exibe os resultados na interface
+     * Exibe os resultados do cálculo
      */
     function displayResults(data) {
-        // Preencher campos
+        // Preencher valores
         document.getElementById('resultPrintType').textContent = data.print_type;
         document.getElementById('resultPrintRun').textContent = formatNumber(data.print_run);
         document.getElementById('resultWaste').textContent = formatNumber(data.waste_amount);
         document.getElementById('resultAdjustment').textContent = data.adjustment || 'N/A';
 
-        // Calcular e exibir percentual de desperdício
-        const wastePct = (data.waste_amount / data.print_run) * 100;
-        wastePercentage.textContent = `${wastePct.toFixed(1)}%`;
+        // Calcular e exibir porcentagem de desperdício
+        const wastePercent = ((data.waste_amount / data.print_run) * 100).toFixed(2);
+        wastePercentage.textContent = `${wastePercent}%`;
 
-        // Definir cor do badge baseado no percentual
-        if (wastePct < 5) {
-            wastePercentage.className = 'badge bg-success';
-        } else if (wastePct < 10) {
-            wastePercentage.className = 'badge bg-info';
-        } else if (wastePct < 15) {
-            wastePercentage.className = 'badge bg-warning';
-        } else {
-            wastePercentage.className = 'badge bg-danger';
-        }
-
-        // Tratar caso especial
+        // Mostrar/ocultar alerta de caso especial
         if (data.is_special_case) {
             specialCaseAlert.style.display = 'flex';
-            resultCard.classList.add('special-case');
         } else {
             specialCaseAlert.style.display = 'none';
-            resultCard.classList.remove('special-case');
         }
 
-        // Exibir o card de resultado com animação
+        // Exibir card de resultado
         resultCard.style.display = 'block';
-        resultCard.classList.add('fade-in');
 
-        // Remover classe após animação
-        setTimeout(() => {
-            resultCard.classList.remove('fade-in');
-        }, 500);
+        // Rolar para o card de resultado
+        resultCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
     /**
-     * Gera uma sugestão de otimização com base nos dados
+     * Exibe sugestões de otimização com base nos resultados
      */
     function showOptimizationSuggestion(data) {
-        // Verificar se a sugestão é relevante
-        if (data.print_run < 2000) {
-            // Calcular a sugestão (exemplo simplificado)
-            const suggestedRun = Math.ceil(data.print_run / 500) * 500;
+        let suggestion = '';
+        let canOptimize = false;
 
-            // Se a sugestão for igual à tiragem atual, aumentar
-            if (suggestedRun <= data.print_run) {
-                suggestedRun += 500;
-            }
-
-            // Calcular a redução relativa de desperdício (lógica fictícia para demonstração)
-            const currentWastePct = (data.waste_amount / data.print_run) * 100;
-            const estimatedNewWaste = data.waste_amount * 1.2; // Assumindo que aumenta 20%
-            const newWastePct = (estimatedNewWaste / suggestedRun) * 100;
-            const reduction = Math.round(currentWastePct - newWastePct);
-
-            // Mostrar a sugestão apenas se houver redução
-            if (reduction > 0) {
-                document.getElementById('optimizationSuggestion').innerHTML = `
-                    <p>Aumentando a tiragem para <strong>${formatNumber(suggestedRun)}</strong> unidades, 
-                    você teria uma redução de aproximadamente <strong>${reduction}%</strong> 
-                    no desperdício relativo por unidade.</p>
-                    <p class="text-muted small">O desperdício total em folhas pode ser maior, mas o custo por unidade será menor.</p>
-                `;
-
-                // Definir valor a ser aplicado na sugestão
-                applySuggestionBtn.dataset.suggestedRun = suggestedRun;
-
-                // Mostrar card de sugestão
-                suggestionCard.style.display = 'block';
-                suggestionCard.classList.add('fade-in');
-
-                // Remover classe após animação
-                setTimeout(() => {
-                    suggestionCard.classList.remove('fade-in');
-                }, 500);
-            } else {
-                suggestionCard.style.display = 'none';
-            }
+        // Verificar possibilidades de otimização
+        if (data.print_run < 1000) {
+            // Sugerir aumento para 1000 unidades
+            const nextTier = 1000;
+            
+            // Simular cálculo para próximo tier
+            fetch(`/api/waste-calculation?print_type=${encodeURIComponent(data.print_type)}&print_run=${nextTier}`)
+                .then(handleResponse)
+                .then(optimizedData => {
+                    const currentWastePerUnit = data.waste_amount / data.print_run;
+                    const optimizedWastePerUnit = optimizedData.waste_amount / optimizedData.print_run;
+                    
+                    if (optimizedWastePerUnit < currentWastePerUnit) {
+                        canOptimize = true;
+                        
+                        suggestion = `
+                            <p>Aumentar a tiragem para <strong>${formatNumber(nextTier)}</strong> unidades 
+                            pode reduzir o desperdício por unidade de <strong>${(currentWastePerUnit * 100).toFixed(2)}%</strong> 
+                            para <strong>${(optimizedWastePerUnit * 100).toFixed(2)}%</strong>.</p>
+                            <p class="text-success">Economia total: <strong>${
+                                ((currentWastePerUnit - optimizedWastePerUnit) * nextTier).toFixed(0)
+                            }</strong> folhas comparado com proporção atual.</p>
+                        `;
+                        
+                        // Exibir card de sugestão
+                        document.getElementById('optimizationSuggestion').innerHTML = suggestion;
+                        suggestionCard.style.display = 'block';
+                    } else {
+                        suggestionCard.style.display = 'none';
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro ao calcular otimização:', error);
+                    suggestionCard.style.display = 'none';
+                });
         } else {
             suggestionCard.style.display = 'none';
         }
@@ -337,121 +295,77 @@ document.addEventListener('DOMContentLoaded', function () {
      * Aplica a sugestão de otimização
      */
     function applySuggestion() {
-        const suggestedRun = applySuggestionBtn.dataset.suggestedRun;
-        if (suggestedRun) {
-            printRunInput.value = suggestedRun;
-            suggestionCard.style.display = 'none';
+        // Sugestão fixa para tiragens menores que 1000
+        if (currentCalculation.print_run < 1000) {
+            printRunInput.value = '1000';
+            
+            // Acionar envio do formulário
             form.dispatchEvent(new Event('submit'));
         }
     }
 
     /**
-     * Formata números com separador de milhares
+     * Formata números com separadores de milhar
      */
     function formatNumber(num) {
         return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
     }
 
     /**
-     * Gera dados simulados para desenvolvimento
-     */
-    function generateMockData(printType, printRun) {
-        const wasteRate = 0.05; // 5% de taxa de desperdício base
-
-        // Ajuste da taxa com base no tipo de impressão
-        let adjustedRate = wasteRate;
-        if (printType.includes('4/4')) {
-            adjustedRate = 0.07; // Tipos com mais cores têm mais desperdício
-        } else if (printType.includes('2/2')) {
-            adjustedRate = 0.06;
-        }
-
-        // Ajuste baseado na tiragem (tiragens maiores têm menor % de desperdício)
-        if (printRun > 5000) {
-            adjustedRate *= 0.8;
-        } else if (printRun < 1000) {
-            adjustedRate *= 1.2;
-        }
-
-        const wasteAmount = Math.round(printRun * adjustedRate);
-
-        return {
-            print_type: printType,
-            print_run: printRun,
-            waste_amount: wasteAmount,
-            adjustment: printRun > 1000 ? 'Auto' : 'Manual',
-            is_special_case: printRun > 5000 && printType.includes('5/')
-        };
-    }
-
-    /**
      * Adiciona um cálculo ao histórico
      */
     function addToHistory(data) {
-        // Criar objeto de histórico
+        // Obter histórico atual
+        const history = getHistoryFromStorage();
+        
+        // Adicionar timestamp
         const historyItem = {
-            timestamp: new Date().toISOString(),
-            print_type: data.print_type,
-            print_run: data.print_run,
-            waste_amount: data.waste_amount,
-            is_special_case: data.is_special_case
+            ...data,
+            timestamp: new Date().toISOString()
         };
-
-        // Obter histórico existente
-        let history = getHistoryFromStorage();
-
-        // Adicionar novo item no início
+        
+        // Adicionar no início (mais recente primeiro)
         history.unshift(historyItem);
-
-        // Limitar a 5 itens
-        if (history.length > 5) {
-            history = history.slice(0, 5);
+        
+        // Limitar a 10 itens
+        if (history.length > 10) {
+            history.pop();
         }
-
+        
         // Salvar no localStorage
         localStorage.setItem('wasteCalculationHistory', JSON.stringify(history));
-
-        // Atualizar UI
+        
+        // Atualizar exibição
         renderHistoryItems(history);
-
-        // Verificar se o histórico está colapsado e tem itens
-        if (history.length > 0 && !historyCollapse.classList.contains('show')) {
-            // Destacar o cabeçalho para indicar novos itens
-            historyToggle.classList.add('highlight-history');
-            setTimeout(() => {
-                historyToggle.classList.remove('highlight-history');
-            }, 2000);
-        }
     }
 
     /**
-     * Remove um item específico do histórico
+     * Remove um item do histórico
      */
     function removeHistoryItem(index) {
-        let history = getHistoryFromStorage();
-
-        // Remover o item no índice especificado
+        // Obter histórico atual
+        const history = getHistoryFromStorage();
+        
+        // Remover item no índice especificado
         history.splice(index, 1);
-
+        
         // Salvar no localStorage
         localStorage.setItem('wasteCalculationHistory', JSON.stringify(history));
-
-        // Atualizar UI
+        
+        // Atualizar exibição
         renderHistoryItems(history);
-
-        showToast('Item removido do histórico.');
     }
 
     /**
      * Obtém o histórico do localStorage
      */
     function getHistoryFromStorage() {
-        const historyString = localStorage.getItem('wasteCalculationHistory');
-        return historyString ? JSON.parse(historyString) : [];
+        const history = localStorage.getItem('wasteCalculationHistory');
+        return history ? JSON.parse(history) : [];
     }
 
     /**
-     * Carrega o histórico do localStorage na inicialização
+     * Carrega o histórico do localStorage
      */
     function loadHistoryFromStorage() {
         const history = getHistoryFromStorage();
@@ -459,148 +373,117 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     /**
-     * Renderiza os itens de histórico na UI
+     * Renderiza os itens do histórico
      */
     function renderHistoryItems(history) {
-        // Limpar conteúdo atual
-        historyItems.innerHTML = '';
-
         // Atualizar contador
         historyCount.textContent = history.length;
-
-        // Se não houver histórico, mostrar mensagem
+        
+        // Limpar conteúdo atual
+        historyItems.innerHTML = '';
+        
+        // Mostrar mensagem se vazio
         if (history.length === 0) {
             emptyHistoryMessage.style.display = 'block';
             return;
         }
-
-        // Ocultar mensagem de vazio
+        
+        // Ocultar mensagem se não vazio
         emptyHistoryMessage.style.display = 'none';
-
-        // Criar tabela para os itens de histórico
-        const table = document.createElement('table');
-        table.className = 'table table-hover';
-
-        // Cabeçalho da tabela
-        const thead = document.createElement('thead');
-        thead.innerHTML = `
-            <tr>
-                <th>Tipo</th>
-                <th>Tiragem</th>
-                <th>Desperdício</th>
-                <th>Data/Hora</th>
-                <th>Ações</th>
-            </tr>
-        `;
-        table.appendChild(thead);
-
-        // Corpo da tabela
-        const tbody = document.createElement('tbody');
-
-        // Adicionar itens
+        
+        // Criar elementos para cada item do histórico
         history.forEach((item, index) => {
-            const row = document.createElement('tr');
-            if (item.is_special_case) {
-                row.classList.add('table-warning');
-            }
-
-            // Formatar data
+            // Converter timestamp para formato legível
             const date = new Date(item.timestamp);
-            const formattedDate = date.toLocaleDateString('pt-BR') + ' ' +
-                date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-
-            // Conteúdo da linha
-            row.innerHTML = `
-                <td>${item.print_type}</td>
-                <td>${formatNumber(item.print_run)}</td>
-                <td>${formatNumber(item.waste_amount)} folhas</td>
-                <td>${formattedDate}</td>
-                <td>
-                    <div class="d-flex">
-                        <button class="btn btn-sm view-history-item me-1" title="Visualizar este cálculo">
+            const formattedDate = `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
+            
+            // Calcular e formatar porcentagem de desperdício
+            const wastePercent = ((item.waste_amount / item.print_run) * 100).toFixed(2);
+            
+            // Criar elemento de histórico
+            const historyItem = document.createElement('div');
+            historyItem.className = 'history-item';
+            if (item.is_special_case) {
+                historyItem.classList.add('special-case');
+            }
+            
+            historyItem.innerHTML = `
+                <div class="history-item-header">
+                    <div class="history-item-title">
+                        <span class="badge ${item.is_special_case ? 'bg-warning' : 'bg-primary'}">
+                            ${item.print_type}
+                        </span>
+                        <span class="history-item-quantity">${formatNumber(item.print_run)} unidades</span>
+                    </div>
+                    <div class="history-item-actions">
+                        <button class="btn btn-sm btn-outline-primary view-btn" data-index="${index}">
                             <i class="bi bi-eye"></i>
                         </button>
-                        <button class="btn btn-sm delete-history-item" title="Remover do histórico">
+                        <button class="btn btn-sm btn-outline-danger delete-btn" data-index="${index}">
                             <i class="bi bi-trash"></i>
                         </button>
                     </div>
-                </td>
+                </div>
+                <div class="history-item-details">
+                    <div class="history-detail">
+                        <i class="bi bi-exclamation-triangle text-warning"></i>
+                        <span>Desperdício: <strong>${formatNumber(item.waste_amount)} folhas</strong> (${wastePercent}%)</span>
+                    </div>
+                    <div class="history-detail">
+                        <i class="bi bi-calendar"></i>
+                        <span>Calculado em: <strong>${formattedDate}</strong></span>
+                    </div>
+                </div>
             `;
-
-            // Adicionar evento para visualizar este cálculo
-            const viewBtn = row.querySelector('.view-history-item');
-            viewBtn.addEventListener('click', () => {
+            
+            // Adicionar ao contêiner
+            historyItems.appendChild(historyItem);
+            
+            // Configurar botões
+            const viewBtn = historyItem.querySelector('.view-btn');
+            const deleteBtn = historyItem.querySelector('.delete-btn');
+            
+            viewBtn.addEventListener('click', function() {
+                // Preencher formulário com valores deste item
                 printTypeSelect.value = item.print_type;
                 printRunInput.value = item.print_run;
-
-                // Mostrar os dados mas sem recalcular (simulando um clique no botão Calcular)
-                const data = {
-                    print_type: item.print_type,
-                    print_run: item.print_run,
-                    waste_amount: item.waste_amount,
-                    adjustment: 'Auto', // Valor de exemplo, pode ser ajustado
-                    is_special_case: item.is_special_case
-                };
-
-                displayResults(data);
-                showOptimizationSuggestion(data);
+                
+                // Exibir resultados
+                displayResults(item);
+                
+                // Reexibir sugestões de otimização
+                showOptimizationSuggestion(item);
+                
+                // Fechar o histórico
+                new bootstrap.Collapse(historyCollapse, {
+                    toggle: true
+                });
+                
+                // Trocar ícone
+                const icon = historyToggle.querySelector('.bi');
+                icon.classList.replace('bi-chevron-up', 'bi-chevron-down');
             });
-
-            // Adicionar evento para excluir este item
-            const deleteBtn = row.querySelector('.delete-history-item');
-            deleteBtn.addEventListener('click', (e) => {
-                e.stopPropagation(); // Evitar que o evento de clique da linha seja disparado
+            
+            deleteBtn.addEventListener('click', function() {
                 removeHistoryItem(index);
             });
-
-            tbody.appendChild(row);
         });
-
-        table.appendChild(tbody);
-        historyItems.appendChild(table);
     }
 
     /**
-     * Limpa o histórico de cálculos
+     * Limpa todo o histórico
      */
     function clearHistory() {
         localStorage.removeItem('wasteCalculationHistory');
         renderHistoryItems([]);
-        showToast('Histórico limpo com sucesso!');
+        showToast('Histórico de cálculos limpo com sucesso.');
     }
 
     /**
-     * Exibe um toast de notificação
+     * Exibe uma mensagem toast
      */
     function showToast(message) {
-        // Criar elemento de toast
-        const toastElement = document.createElement('div');
-        toastElement.className = 'toast align-items-center bg-success text-white position-fixed bottom-0 end-0 m-3';
-        toastElement.setAttribute('role', 'alert');
-        toastElement.setAttribute('aria-live', 'assertive');
-        toastElement.setAttribute('aria-atomic', 'true');
-
-        toastElement.innerHTML = `
-            <div class="d-flex">
-                <div class="toast-body">
-                    ${message}
-                </div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Fechar"></button>
-            </div>
-        `;
-
-        // Adicionar ao documento
-        document.body.appendChild(toastElement);
-
-        // Inicializar e mostrar o toast
-        const toast = new bootstrap.Toast(toastElement, {
-            autohide: true,
-            delay: 3000
-        });
-        toast.show();
-
-        // Remover elemento após esconder
-        toastElement.addEventListener('hidden.bs.toast', () => {
-            document.body.removeChild(toastElement);
-        });
+        // Se a aplicação tiver um sistema de toast, chamar aqui
+        alert(message);
     }
+});

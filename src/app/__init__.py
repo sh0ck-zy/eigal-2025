@@ -1,31 +1,35 @@
-# app/__init__.py
-from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
-import os
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from app.api.routes import quantities
+from app.config.settings import Settings
+from app.core.database import Base, engine
 
-# Inicializa a extensão SQLAlchemy
-db = SQLAlchemy()
-
-def create_app():
-    # Cria e configura a aplicação
-    app = Flask(__name__)
+def create_app() -> FastAPI:
+    # Carrega configurações
+    settings = Settings()
     
-    # Configuração do banco de dados SQLite
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///waste_calculation.db'
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    # Cria a aplicação
+    app = FastAPI(
+        title="Print Shop Waste Calculator",
+        description="API para cálculo de desperdício em gráficas",
+        version="1.0.0"
+    )
     
-    # Inicializa o db com a aplicação
-    db.init_app(app)
+    # Configuração de CORS
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
     
-    # Importa e registra as rotas
-    from app.routes import api
-    app.register_blueprint(api)
-    
-    # Certifica que a pasta da base de dados existe
-    os.makedirs(os.path.dirname(app.config['SQLALCHEMY_DATABASE_URI'].replace('sqlite:///', '')), exist_ok=True)
+    # Registra rotas
+    app.include_router(quantities.router, prefix="/api", tags=["quantities"])
     
     # Cria as tabelas no banco de dados
-    with app.app_context():
-        db.create_all()
+    Base.metadata.create_all(bind=engine)
     
     return app
+
+app = create_app()
