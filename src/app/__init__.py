@@ -1,5 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+import os
 from app.api.routes import quantities
 from app.config.settings import Settings
 from app.core.database import Base, engine
@@ -27,8 +30,16 @@ def create_app() -> FastAPI:
     # Registra rotas
     app.include_router(quantities.router, prefix="/api", tags=["quantities"])
     
+    # Configurar pasta de arquivos estáticos
+    app.mount("/static", StaticFiles(directory="static"), name="static")
+    
     # Cria as tabelas no banco de dados
     Base.metadata.create_all(bind=engine)
+    
+    # Servir o arquivo index.html na rota raiz
+    @app.get("/")
+    async def serve_index():
+        return FileResponse("index.html")
     
     return app
 
