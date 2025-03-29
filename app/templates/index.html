@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NAU Industrial - Cálculo de Desperdício de Impressão</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --primary-color: #1E3A5F;
+            --secondary-color: #3E6DAB;
+            --accent-color: #FF8C42;
+            --light-bg: #F8F9FA;
+            --dark-bg: #212529;
+            --success-color: #28a745;
+        }
+
+        body {
+            padding-top: 0;
+            background-color: var(--light-bg);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .header-section {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo {
+            max-height: 70px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            border-radius: 10px;
+            border: none;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 2rem;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-card {
+            background-color: white;
+        }
+
+        .result-card {
+            display: none;
+            overflow: hidden;
+        }
+
+        .special-case {
+            border-left: 5px solid #ffc107;
+        }
+
+        .form-select,
+        .form-control {
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            border: 1px solid #ced4da;
+            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+        }
+
+        .form-select:focus,
+        .form-control:focus {
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 0.2rem rgba(62, 109, 171, 0.25);
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover,
+        .btn-primary:focus {
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+
+        .btn-outline-secondary {
+            color: var(--primary-color);
+            border-color: var(--primary-color);
+            border-radius: 8px;
+        }
+
+        .btn-outline-secondary:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .card-header {
+            background-color: var(--primary-color);
+            color: white;
+            border-bottom: none;
+            padding: 1rem 1.5rem;
+        }
+
+        .card-body {
+            padding: 1.5rem;
+        }
+
+        .result-value {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .result-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 500;
+            display: inline-block;
+        }
+
+        .waste-badge {
+            background-color: #f8f9fa;
+            color: var(--dark-bg);
+        }
+
+        .spinner {
+            display: none;
+            width: 1.5rem;
+            height: 1.5rem;
+        }
+
+        .special-case-alert {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-radius: 8px;
+        }
+
+        .history-section {
+            display: none;
+            margin-top: 2rem;
+        }
+
+        .history-item {
+            border-left: 4px solid var(--primary-color);
+            padding: 0.5rem 1rem;
+            margin-bottom: 0.5rem;
+            background-color: white;
+            border-radius: 0 8px 8px 0;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .history-item:hover {
+            background-color: #f8f9fa;
+            transform: translateX(5px);
+        }
+
+        .footer {
+            background-color: var(--dark-bg);
+            color: white;
+            padding: 1.5rem 0;
+            margin-top: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .header-section {
+                padding: 1.5rem 0;
+            }
+
+            .logo {
+                max-height: 50px;
+            }
+
+            .form-select,
+            .form-control,
+            .btn-primary {
+                padding: 0.6rem 1rem;
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Header Section -->
+    <div class="header-section">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-md-10 text-center">
+                    <img src="https://via.placeholder.com/600x100/1E3A5F/FFFFFF?text=NAU+Industrial"
+                        alt="NAU Industrial" class="logo">
+                    <h1 class="display-5 fw-bold mb-3">Cálculo de Desperdício</h1>
+                    <p class="lead">Sistema de estimativa de desperdício para impressão gráfica</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="row justify-content-center">
+            <!-- Main Form Section -->
+            <div class="col-md-8 col-lg-6 mb-4">
+                <div class="card form-card shadow">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="bi bi-calculator me-2"></i>Dados da Impressão</h5>
+                        <button id="historyToggle" class="btn btn-sm btn-outline-light">
+                            <i class="bi bi-clock-history"></i> Histórico
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <form id="wasteCalculationForm">
+                            <div class="mb-4">
+                                <label for="printType" class="form-label fw-bold">Tipo de Impressão</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-printer"></i></span>
+                                    <select class="form-select" id="printType" required>
+                                        <option value="" selected disabled>Selecione o tipo de impressão</option>
+                                        <!-- Options will be loaded dynamically -->
+                                    </select>
+                                </div>
+                                <small class="text-muted">Ex: 4/0 (Frente colorida), 4/4 (Frente e verso
+                                    coloridos)</small>
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="printRun" class="form-label fw-bold">Quantidade a Imprimir</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-123"></i></span>
+                                    <input type="number" class="form-control" id="printRun" min="1"
+                                        placeholder="Ex: 1000" required>
+                                </div>
+                                <small class="text-muted">Número total de unidades da tiragem</small>
+                            </div>
+
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary">
+                                    <span id="submitSpinner" class="spinner spinner-border spinner-border-sm me-2"
+                                        role="status" aria-hidden="true"></span>
+                                    Calcular Desperdício
+                                </button>
+                                <button type="reset" class="btn btn-outline-secondary">Limpar</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- History Section (Initially Hidden) -->
+                <div id="historySection" class="history-section">
+                    <h5 class="mb-3"><i class="bi bi-clock-history me-2"></i>Cálculos Recentes</h5>
+                    <div id="historyItems" class="mb-3">
+                        <!-- History items will be added dynamically -->
+                    </div>
+                    <button id="clearHistory" class="btn btn-sm btn-outline-secondary">
+                        <i class="bi bi-trash me-1"></i> Limpar Histórico
+                    </button>
+                </div>
+            </div>
+
+            <!-- Result Section -->
+            <div class="col-md-8 col-lg-6">
+                <div id="resultCard" class="card result-card shadow">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="bi bi-clipboard-data me-2"></i>Resultado do Cálculo</h5>
+                        <button id="saveResult" class="btn btn-sm btn-outline-light">
+                            <i class="bi bi-save"></i> Salvar
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="bi bi-printer me-2 text-secondary"></i>
+                                    <span class="fw-bold">Tipo de Impressão:</span>
+                                </div>
+                                <div class="ps-4">
+                                    <span id="resultPrintType" class="result-value fs-5"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="bi bi-123 me-2 text-secondary"></i>
+                                    <span class="fw-bold">Quantidade:</span>
+                                </div>
+                                <div class="ps-4">
+                                    <span id="resultPrintRun" class="result-value fs-5"></span> unidades
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="bi bi-exclamation-triangle me-2 text-warning"></i>
+                                    <span class="fw-bold">Desperdício:</span>
+                                </div>
+                                <div class="ps-4">
+                                    <span class="result-badge waste-badge">
+                                        <span id="resultWaste" class="result-value fs-5"></span> folhas
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="bi bi-sliders me-2 text-secondary"></i>
+                                    <span class="fw-bold">Ajuste:</span>
+                                </div>
+                                <div class="ps-4">
+                                    <span id="resultAdjustment" class="result-value fs-5">N/A</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="specialCaseAlert" class="alert alert-warning special-case-alert mt-3"
+                            style="display: none;">
+                            <i class="bi bi-exclamation-triangle-fill fs-4"></i>
+                            <div>
+                                <strong>Atenção:</strong> Este caso requer consideração especial.
+                                Recomendamos consultar a equipe de produção para confirmação.
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-end mt-3">
+                            <button id="generatePdfBtn" class="btn btn-sm btn-outline-secondary me-2">
+                                <i class="bi bi-file-pdf me-1"></i> Exportar PDF
+                            </button>
+                            <button id="shareResultBtn" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-share me-1"></i> Compartilhar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Suggestion Card -->
+                <div id="suggestionCard" class="card shadow" style="display: none;">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="bi bi-lightbulb me-2"></i>Sugestão de Otimização</h5>
+                    </div>
+                    <div class="card-body">
+                        <p>Com base no tipo de impressão e tiragem, sugerimos:</p>
+                        <div id="optimizationSuggestion" class="alert alert-success">
+                            Aumentando a tiragem para <strong>2000</strong> unidades,
+                            você teria uma redução de <strong>15%</strong> no desperdício relativo.
+                        </div>
+                        <button id="applySuggestion" class="btn btn-sm btn-outline-success">
+                            <i class="bi bi-check-circle me-1"></i> Aplicar Sugestão
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer mt-auto">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6 text-center text-md-start">
+                    <p class="mb-0">&copy; 2025 NAU Industrial - Sistema de Cálculo de Desperdício</p>
+                </div>
+                <div class="col-md-6 text-center text-md-end">
+                    <p class="mb-0">Versão 1.0.0 | <a href="#" class="text-white text-decoration-none">Suporte</a></p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Elements
+            const form = document.getElementById('wasteCalculationForm');
+            const resultCard = document.getElementById('resultCard');
+            const suggestionCard = document.getElementById('suggestionCard');
+            const submitSpinner = document.getElementById('submitSpinner');
+            const historyToggle = document.getElementById('historyToggle');
+            const historySection = document.getElementById('historySection');
+            const historyItems = document.getElementById('historyItems');
+            const clearHistory = document.getElementById('clearHistory');
+            const saveResult = document.getElementById('saveResult');
+            const generatePdfBtn = document.getElementById('generatePdfBtn');
+            const shareResultBtn = document.getElementById('shareResultBtn');
+            const applySuggestion = document.getElementById('applySuggestion');
+
+            // Load print types from API
+            fetch('/api/print-types')
+                .then(response => response.json())
+                .then(printTypes => {
+                    const selectElement = document.getElementById('printType');
+                    printTypes.forEach(type => {
+                        const option = document.createElement('option');
+                        option.value = type;
+                        option.textContent = type;
+                        selectElement.appendChild(option);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error loading print types:', error);
+                    // For demo purposes, add some sample print types
+                    const sampleTypes = ['4/0', '4/4', '2/2', '2/0', '1/1', '1/0'];
+                    const selectElement = document.getElementById('printType');
+                    sampleTypes.forEach(type => {
+                        const option = document.createElement('option');
+                        option.value = type;
+                        option.textContent = type;
+                        selectElement.appendChild(option);
+                    });
+                });
+
+            // Handle form submission
+            form.addEventListener('submit', function (e) {
+                e.preventDefault();
+
+                // Show spinner
+                submitSpinner.style.display = 'inline-block';
+
+                const printType = document.getElementById('printType').value;
+                const printRun = document.getElementById('printRun').value;
+
+                // Call API for waste calculation
+                setTimeout(() => {  // Simulating API call delay
+                    fetch(`/api/waste-calculation?print_type=${encodeURIComponent(printType)}&print_run=${printRun}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            // Hide spinner
+                            submitSpinner.style.display = 'none';
+
+                            // Display results
+                            document.getElementById('resultPrintType').textContent = data.print_type;
+                            document.getElementById('resultPrintRun').textContent = data.print_run;
+                            document.getElementById('resultWaste').textContent = data.waste_amount;
+                            document.getElementById('resultAdjustment').textContent = data.adjustment || 'N/A';
+
+                            // Show or hide special case alert
+                            const specialCaseAlert = document.getElementById('specialCaseAlert');
+                            if (data.is_special_case) {
+                                specialCaseAlert.style.display = 'flex';
+                                resultCard.classList.add('special-case');
+                            } else {
+                                specialCaseAlert.style.display = 'none';
+                                resultCard.classList.remove('special-case');
+                            }
+
+                            // Show result card with animation
+                            resultCard.style.display = 'block';
+                            resultCard.classList.add('fade-in');
+
+                            // Add to calculation history
+                            addToHistory(data);
+
+                            // Show optimization suggestion (for demo purposes)
+                            if (parseInt(printRun) < 2000) {
+                                suggestionCard.style.display = 'block';
+                                suggestionCard.classList.add('fade-in');
+                            } else {
+                                suggestionCard.style.display = 'none';
+                            }
+                        })
+                        .catch(error => {
+                            // Hide spinner
+                            submitSpinner.style.display = 'none';
+
+                            console.error('Error calculating waste:', error);
+
+                            // Mock data for demo purposes
+                            const mockData = {
+                                print_type: printType,
+                                print_run: parseInt(printRun),
+                                waste_amount: Math.floor(parseInt(printRun) * 0.05),
+                                adjustment: 'Auto',
+                                is_special_case: parseInt(printRun) > 10000
+                            };
+
+                            // Display results with mock data
+                            document.getElementById('resultPrintType').textContent = mockData.print_type;
+                            document.getElementById('resultPrintRun').textContent = mockData.print_run;
+                            document.getElementById('resultWaste').textContent = mockData.waste_amount;
+                            document.getElementById('resultAdjustment').textContent = mockData.adjustment || 'N/A';
+
+                            // Show or hide special case alert
+                            const specialCaseAlert = document.getElementById('specialCaseAlert');
+                            if (mockData.is_special_case) {
+                                specialCaseAlert.style.display = 'flex';
+                                resultCard.classList.add('special-case');
+                            } else {
+                                specialCaseAlert.style.display = 'none';
+                                resultCard.classList.remove('special-case');
+                            }
+
+                            // Show result card with animation
+                            resultCard.style.display = 'block';
+                            resultCard.classList.add('fade-in');
+
+                            // Add to calculation history
+                            addToHistory(mockData);
+
+                            // Show optimization suggestion (for demo purposes)
+                            if (parseInt(printRun) < 2000) {
+                                suggestionCard.style.display = 'block';
+                                suggestionCard.classList.add('fade-in');
+                            } else {
+                                suggestionCard.style.display = 'none';
+                            }
+                        });
+                }, 800);
+            });
+
+            // History toggle functionality
+            historyToggle.addEventListener('click', function () {
+                if (historySection.style.display === 'none' || historySection.style.display === '') {
+                    historySection.style.display = 'block';
+                    historySection.classList.add('fade-in');
+                } else {
+                    historySection.style.display = 'none';
+                }
+            });
+
+            // Clear history
+            clearHistory.addEventListener('click', function () {
+                historyItems.innerHTML = '';
+                localStorage.removeItem('calculationHistory');
+            });
+
+            // Apply suggestion button
+            applySuggestion.addEventListener('click', function () {
+                document.getElementById('printRun').value = 2000;
+                suggestionCard.style.display = 'none';
+                form.dispatchEvent(new Event('submit'));
+            });
+
+            // Save result functionality (just a demo)
+            saveResult.addEventListener('click', function () {
+                alert('Resultado salvo com sucesso!');
+            });
+
+            // Generate PDF (just a demo)
+            generatePdfBtn.addEventListener('click', function () {
+                alert('Funcionalidade de exportação para PDF será implementada em breve.');
+            });
+
+            // Share result (just a demo)
+            shareResultBtn.addEventListener('click', function () {
+                alert('Funcionalidade de compartilhamento será implementada em breve.');
+            });
+
+            // Function to add calculation to history
+            function addToHistory(data) {
+                // Get existing history from localStorage
+                let history = JSON.parse(localStorage.getItem('calculationHistory')) || [];
+
+                // Add new calculation
+                history.unshift({
+                    timestamp: new Date().toISOString(),
+                    ...data
+                });
+
+                // Keep only the last 5 items
+                if (history.length > 5) {
+                    history = history.slice(0, 5);
+                }
+
+                // Save to localStorage
+                localStorage.setItem('calculationHistory', JSON.stringify(history));
+
+                // Update UI
+                updateHistoryUI(history);
+            }
+
+            // Function to update history UI
+            function updateHistoryUI(history) {
+                historyItems.innerHTML = '';
+
+                if (history.length === 0) {
+                    const emptyMsg = document.createElement('p');
+                    emptyMsg.textContent = 'Nenhum cálculo recente.';
+                    emptyMsg.className = 'text-muted small';
+                    historyItems.appendChild(emptyMsg);
+                    return;
+                }
+
+                history.forEach((item, index) => {
+                    const historyItem = document.createElement('div');
+                    historyItem.className = 'history-item';
+
+                    const date = new Date(item.timestamp);
+                    const formattedDate = date.toLocaleDateString('pt-BR') + ' ' +
+                        date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+
+                    historyItem.innerHTML = `
+                        <div class="d-flex justify-content-between">
+                            <strong>${item.print_type}</strong>
+                            <small class="text-muted">${formattedDate}</small>
+                        </div>
+                        <div>Tiragem: ${item.print_run} | Desperdício: ${item.waste_amount} folhas</div>
+                    `;
+
+                    // Add click event to reload this calculation
+                    historyItem.addEventListener('click', function () {
+                        document.getElementById('printType').value = item.print_type;
+                        document.getElementById('printRun').value = item.print_run;
+                        form.dispatchEvent(new Event('submit'));
+                    });
+
+                    historyItems.appendChild(historyItem);
+                });
+            }
+
+            // Load initial history
+            const initialHistory = JSON.parse(localStorage.getItem('calculationHistory')) || [];
+            updateHistoryUI(initialHistory);
+
+            // Reset animation classes after animations complete
+            document.addEventListener('animationend', function (e) {
+                if (e.target.classList.contains('fade-in')) {
+                    e.target.classList.remove('fade-in');
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

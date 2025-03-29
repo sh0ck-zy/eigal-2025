@@ -1,0 +1,33 @@
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+venv/
+env/
+ENV/
+
+# IDE files
+.vscode/
+.idea/
+*.sublime-*
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Logs
+*.log
+
+# Excel files (optional, if you want to exclude the input data)
+# *.xlsx
+# *.xls
+
+# Environment variables
+.env
+
+# OS-specific files
+.DS_Store
+Thumbs.db 
