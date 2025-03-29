@@ -1,0 +1,32 @@
+erDiagram
+    PRINT_TYPES {
+        string code PK "e.g., 4/0, 4/4"
+        string description "Detailed description"
+        boolean requires_special_handling "Flag for types that need extra attention"
+        timestamp created_at
+        timestamp updated_at
+    }
+    
+    QUANTITIES {
+        int id PK
+        string print_type FK "References PRINT_TYPES"
+        int print_run "Number of items to print"
+        int waste_amount "Expected waste in sheets"
+        int adjustment "Optional adjustments"
+        boolean is_special_case "Requires manual review"
+        string notes "Additional information"
+        timestamp created_at
+        timestamp updated_at
+    }
+    
+    CALCULATION_HISTORY {
+        int id PK
+        int quantity_id FK "References QUANTITIES"
+        timestamp calculated_at
+        string user_identifier "Who made the calculation"
+        int actual_waste_amount "Actual waste reported"
+        string feedback "User feedback on calculation accuracy"
+    }
+    
+    PRINT_TYPES ||--o{ QUANTITIES : "defines waste for"
+    QUANTITIES ||--o{ CALCULATION_HISTORY : "generates"

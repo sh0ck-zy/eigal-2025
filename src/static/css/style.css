@@ -1,0 +1,188 @@
+/* Variáveis de cores */
+:root {
+    --primary-color: #1E3A5F;
+    --secondary-color: #3E6DAB;
+    --accent-color: #FF8C42;
+    --light-bg: #F8F9FA;
+    --dark-bg: #212529;
+    --success-color: #28a745;
+}
+
+/* Estilos gerais */
+body {
+    padding-top: 0;
+    background-color: var(--light-bg);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Cabeçalho */
+.header-section {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 2rem 0;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.logo {
+    max-height: 70px;
+    margin-bottom: 20px;
+}
+
+/* Cards */
+.card {
+    border-radius: 10px;
+    border: none;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.05);
+    margin-bottom: 2rem;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.form-card {
+    background-color: white;
+}
+
+.result-card {
+    overflow: hidden;
+}
+
+/* Caso especial */
+.special-case {
+    border-left: 5px solid #ffc107;
+}
+
+/* Elementos de formulário */
+.form-select,
+.form-control {
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    border: 1px solid #ced4da;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.form-select:focus,
+.form-control:focus {
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 0 0.2rem rgba(62, 109, 171, 0.25);
+}
+
+/* Botões */
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+    background-color: var(--secondary-color);
+    border-color: var(--secondary-color);
+    transform: translateY(-2px);
+}
+
+.btn-outline-secondary {
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+    border-radius: 8px;
+}
+
+.btn-outline-secondary:hover {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+/* Cabeçalhos de card */
+.card-header {
+    background-color: var(--primary-color);
+    color: white;
+    border-bottom: none;
+    padding: 1rem 1.5rem;
+}
+
+.card-body {
+    padding: 1.5rem;
+}
+
+/* Valores de resultado */
+.result-value {
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+.result-badge {
+    padding: 0.5rem 1rem;
+    border-radius: 50px;
+    font-size: 1rem;
+    font-weight: 500;
+    display: inline-block;
+}
+
+.waste-badge {
+    background-color: #f8f9fa;
+    color: var(--dark-bg);
+}
+
+/* Spinner de carregamento */
+.spinner {
+    display: none;
+    width: 1.5rem;
+    height: 1.5rem;
+}
+
+/* Alerta de caso especial */
+.special-case-alert {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-radius: 8px;
+}
+
+/* Rodapé */
+.footer {
+    background-color: var(--dark-bg);
+    color: white;
+    padding: 1.5rem 0;
+    margin-top: 2rem;
+}
+
+/* Animação fade-in */
+.fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .header-section {
+        padding: 1.5rem 0;
+    }
+
+    .logo {
+        max-height: 50px;
+    }
+
+    .form-select,
+    .form-control,
+    .btn-primary {
+        padding: 0.6rem 1rem;
+    }
+}

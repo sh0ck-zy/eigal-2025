@@ -1,0 +1,28 @@
+classDiagram
+    class PrintType {
+        +String code
+        +String description
+        +Boolean requiresSpecialHandling
+        +List~WasteCalculation~ wasteCalculations
+    }
+    
+    class WasteCalculation {
+        +Integer id
+        +Integer printRun
+        +Integer wasteAmount
+        +Integer adjustment
+        +Boolean isSpecialCase
+        +String notes
+        +calculateWaste()
+    }
+    
+    class CalculationHistory {
+        +Integer id
+        +DateTime timestamp
+        +String userIdentifier
+        +Integer actualWasteAmount
+        +String feedback
+    }
+
+    PrintType "1" -- "many" WasteCalculation : has
+    WasteCalculation "1" -- "many" CalculationHistory : generates
