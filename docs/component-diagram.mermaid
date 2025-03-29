@@ -1,0 +1,30 @@
+flowchart TD
+    subgraph Files["Arquivos do Projeto"]
+        main[run.py] --> app_init
+        app_init[app/__init__.py] --> routes & db
+        routes[app/api/routes.py] --> services
+        services[app/services/waste_calculator.py] --> models & db
+        models[app/models.py] --> db[app/database.py]
+        excel[app/utils/excel_importer.py] --> models & db
+        script[scripts/import_excel.py] --> excel
+    end
+    
+    subgraph Database["Banco de Dados"]
+        quantities[(Tabela quantities)]
+    end
+    
+    subgraph APIs["Endpoints da API"]
+        get_types["/api/print-types"]
+        calc_waste["/api/waste-calculation"]
+    end
+    
+    routes --> get_types & calc_waste
+    db --> quantities
+    
+    classDef files fill:#f9d,stroke:#333,stroke-width:1px;
+    classDef database fill:#9df,stroke:#333,stroke-width:1px;
+    classDef apis fill:#fd9,stroke:#333,stroke-width:1px;
+    
+    class main,app_init,routes,services,models,db,excel,script files;
+    class quantities database;
+    class get_types,calc_waste apis;

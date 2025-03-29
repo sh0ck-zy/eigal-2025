@@ -1,0 +1,46 @@
+sequenceDiagram
+    actor User as Usuário
+    participant UI as Interface Web
+    participant API as FastAPI Endpoints
+    participant Service as WasteCalculatorService
+    participant DB as Banco de Dados
+    
+    %% Carregamento inicial
+    User->>UI: Acessa aplicação
+    UI->>API: GET /api/print-types
+    API->>Service: get_all_print_types()
+    Service->>DB: select(distinct(print_type))
+    DB-->>Service: Lista de tipos
+    Service-->>API: Lista de tipos
+    API-->>UI: JSON com tipos
+    UI->>UI: Preenche dropdown
+    
+    %% Cálculo de desperdício
+    User->>UI: Seleciona tipo e tiragem
+    User->>UI: Clica em "Calcular"
+    UI->>API: GET /api/waste-calculation?print_type=X&print_run=Y
+    API->>Service: calculate_waste(print_type, print_run)
+    Service->>DB: Busca correspondência exata
+    alt Correspondência encontrada
+        DB-->>Service: Retorna registro
+    else Correspondência não encontrada
+        Service->>DB: Busca próximo valor maior
+        alt Valor maior encontrado
+            DB-->>Service: Retorna registro
+        else Valor maior não encontrado
+            Service->>DB: Busca valor menor mais próximo
+            DB-->>Service: Retorna registro ou null
+        end
+    end
+    Service-->>API: Resultado do cálculo
+    API-->>UI: JSON com dados
+    UI->>UI: Exibe resultado
+    
+    %% Importação de Excel (administrativo)
+    actor Admin as Administrador
+    Admin->>API: Executa script import_excel.py
+    API->>Service: import_excel(file_path)
+    Service->>DB: Insere/atualiza registros
+    DB-->>Service: Confirmação
+    Service-->>API: Resultado da importação
+    API-->>Admin: Mensagem de conclusão

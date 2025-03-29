@@ -1,4 +1,4 @@
-# Tasks for NAU Industrial Printing Shop Digital Transformation MVP
+# Tasks for Eigal MVP
 
 ## Domain Model & Database Schema Development
 
