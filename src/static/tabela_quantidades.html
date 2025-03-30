@@ -1,0 +1,379 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tabela de Quantidades</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .explanation {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+        th, td {
+            padding: 12px;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+            position: sticky;
+            top: 0;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        tr:hover {
+            background-color: #ddd;
+        }
+        .print-type-header {
+            background-color: #1976D2;
+            color: white;
+            font-weight: bold;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 0.9em;
+            color: #666;
+        }
+        @media print {
+            .no-print {
+                display: none;
+            }
+            table {
+                page-break-inside: auto;
+            }
+            tr {
+                page-break-inside: avoid;
+                page-break-after: auto;
+            }
+            thead {
+                display: table-header-group;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Tabela de Quantidades para Cálculo de Desperdício</h1>
+        
+        <div class="explanation">
+            <h3>Como utilizar esta tabela:</h3>
+            <p>Esta tabela apresenta os valores de desperdício esperados para cada combinação de tipo de impressão e tiragem.</p>
+            <p>Para encontrar o desperdício esperado:</p>
+            <ol>
+                <li>Localize o tipo de impressão na primeira coluna (ex: 4/0, 4/4)</li>
+                <li>Encontre a tiragem mais próxima na segunda coluna</li>
+                <li>O valor na terceira coluna representa o desperdício esperado em folhas</li>
+            </ol>
+        </div>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>Tipo de Impressão</th>
+                    <th>Tiragem</th>
+                    <th>Desperdício (folhas)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="print-type-header">
+                    <td colspan="3">Tipo: 1/0</td>
+                </tr>
+                <tr>
+                    <td>1/0</td>
+                    <td>500</td>
+                    <td>7</td>
+                </tr>
+                <tr>
+                    <td>1/0</td>
+                    <td>1,000</td>
+                    <td>10</td>
+                </tr>
+                <tr>
+                    <td>1/0</td>
+                    <td>2,000</td>
+                    <td>14</td>
+                </tr>
+                <tr>
+                    <td>1/0</td>
+                    <td>3,000</td>
+                    <td>18</td>
+                </tr>
+                <tr>
+                    <td>1/0</td>
+                    <td>5,000</td>
+                    <td>23</td>
+                </tr>
+                <tr>
+                    <td>1/0</td>
+                    <td>10,000</td>
+                    <td>34</td>
+                </tr>
+                <tr class="print-type-header">
+                    <td colspan="3">Tipo: 1/1</td>
+                </tr>
+                <tr>
+                    <td>1/1</td>
+                    <td>500</td>
+                    <td>9</td>
+                </tr>
+                <tr>
+                    <td>1/1</td>
+                    <td>1,000</td>
+                    <td>13</td>
+                </tr>
+                <tr>
+                    <td>1/1</td>
+                    <td>2,000</td>
+                    <td>18</td>
+                </tr>
+                <tr>
+                    <td>1/1</td>
+                    <td>3,000</td>
+                    <td>21</td>
+                </tr>
+                <tr>
+                    <td>1/1</td>
+                    <td>5,000</td>
+                    <td>30</td>
+                </tr>
+                <tr>
+                    <td>1/1</td>
+                    <td>10,000</td>
+                    <td>43</td>
+                </tr>
+                <tr class="print-type-header">
+                    <td colspan="3">Tipo: 2/0</td>
+                </tr>
+                <tr>
+                    <td>2/0</td>
+                    <td>500</td>
+                    <td>11</td>
+                </tr>
+                <tr>
+                    <td>2/0</td>
+                    <td>1,000</td>
+                    <td>15</td>
+                </tr>
+                <tr>
+                    <td>2/0</td>
+                    <td>2,000</td>
+                    <td>19</td>
+                </tr>
+                <tr>
+                    <td>2/0</td>
+                    <td>3,000</td>
+                    <td>27</td>
+                </tr>
+                <tr>
+                    <td>2/0</td>
+                    <td>5,000</td>
+                    <td>32</td>
+                </tr>
+                <tr>
+                    <td>2/0</td>
+                    <td>10,000</td>
+                    <td>45</td>
+                </tr>
+                <tr class="print-type-header">
+                    <td colspan="3">Tipo: 2/2</td>
+                </tr>
+                <tr>
+                    <td>2/2</td>
+                    <td>500</td>
+                    <td>14</td>
+                </tr>
+                <tr>
+                    <td>2/2</td>
+                    <td>1,000</td>
+                    <td>20</td>
+                </tr>
+                <tr>
+                    <td>2/2</td>
+                    <td>2,000</td>
+                    <td>30</td>
+                </tr>
+                <tr>
+                    <td>2/2</td>
+                    <td>3,000</td>
+                    <td>31</td>
+                </tr>
+                <tr>
+                    <td>2/2</td>
+                    <td>5,000</td>
+                    <td>43</td>
+                </tr>
+                <tr>
+                    <td>2/2</td>
+                    <td>10,000</td>
+                    <td>66</td>
+                </tr>
+                <tr class="print-type-header">
+                    <td colspan="3">Tipo: 4/0</td>
+                </tr>
+                <tr>
+                    <td>4/0</td>
+                    <td>500</td>
+                    <td>14</td>
+                </tr>
+                <tr>
+                    <td>4/0</td>
+                    <td>1,000</td>
+                    <td>19</td>
+                </tr>
+                <tr>
+                    <td>4/0</td>
+                    <td>2,000</td>
+                    <td>26</td>
+                </tr>
+                <tr>
+                    <td>4/0</td>
+                    <td>3,000</td>
+                    <td>33</td>
+                </tr>
+                <tr>
+                    <td>4/0</td>
+                    <td>5,000</td>
+                    <td>48</td>
+                </tr>
+                <tr>
+                    <td>4/0</td>
+                    <td>10,000</td>
+                    <td>65</td>
+                </tr>
+                <tr class="print-type-header">
+                    <td colspan="3">Tipo: 4/4</td>
+                </tr>
+                <tr>
+                    <td>4/4</td>
+                    <td>500</td>
+                    <td>19</td>
+                </tr>
+                <tr>
+                    <td>4/4</td>
+                    <td>1,000</td>
+                    <td>27</td>
+                </tr>
+                <tr>
+                    <td>4/4</td>
+                    <td>2,000</td>
+                    <td>39</td>
+                </tr>
+                <tr>
+                    <td>4/4</td>
+                    <td>3,000</td>
+                    <td>47</td>
+                </tr>
+                <tr>
+                    <td>4/4</td>
+                    <td>5,000</td>
+                    <td>57</td>
+                </tr>
+                <tr>
+                    <td>4/4</td>
+                    <td>10,000</td>
+                    <td>76</td>
+                </tr>
+                <tr class="print-type-header">
+                    <td colspan="3">Tipo: 5/0</td>
+                </tr>
+                <tr>
+                    <td>5/0</td>
+                    <td>500</td>
+                    <td>16</td>
+                </tr>
+                <tr>
+                    <td>5/0</td>
+                    <td>1,000</td>
+                    <td>25</td>
+                </tr>
+                <tr>
+                    <td>5/0</td>
+                    <td>2,000</td>
+                    <td>31</td>
+                </tr>
+                <tr>
+                    <td>5/0</td>
+                    <td>3,000</td>
+                    <td>37</td>
+                </tr>
+                <tr>
+                    <td>5/0</td>
+                    <td>5,000</td>
+                    <td>54</td>
+                </tr>
+                <tr>
+                    <td>5/0</td>
+                    <td>10,000</td>
+                    <td>71</td>
+                </tr>
+                <tr class="print-type-header">
+                    <td colspan="3">Tipo: 5/5</td>
+                </tr>
+                <tr>
+                    <td>5/5</td>
+                    <td>500</td>
+                    <td>23</td>
+                </tr>
+                <tr>
+                    <td>5/5</td>
+                    <td>1,000</td>
+                    <td>31</td>
+                </tr>
+                <tr>
+                    <td>5/5</td>
+                    <td>2,000</td>
+                    <td>46</td>
+                </tr>
+                <tr>
+                    <td>5/5</td>
+                    <td>3,000</td>
+                    <td>55</td>
+                </tr>
+                <tr>
+                    <td>5/5</td>
+                    <td>5,000</td>
+                    <td>65</td>
+                </tr>
+                <tr>
+                    <td>5/5</td>
+                    <td>10,000</td>
+                    <td>89</td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <div class="footer">
+            <p>Tabela gerada a partir dos dados do sistema. Última atualização: <span id="date"></span></p>
+        </div>
+    </div>
+    
+    <script>
+        document.getElementById('date').textContent = new Date().toLocaleDateString('pt-BR');
+    </script>
+</body>
+</html>
